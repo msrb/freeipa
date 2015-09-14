@@ -20,8 +20,9 @@
 Base class for HTTP request tests
 """
 
-import urllib
 import httplib
+
+from six.moves import urllib
 
 from ipalib import api
 
@@ -41,7 +42,7 @@ class Unauthorized_HTTP_test(object):
         :param key When not None, overrides default app_uri
         """
         if params is not None:
-            params = urllib.urlencode(params, True)
+            params = urllib.parse.urlencode(params, True)
         url = 'https://' + self.host + self.app_uri
 
         headers = {'Content-Type' : self.content_type,
