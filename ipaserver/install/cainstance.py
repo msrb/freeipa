@@ -25,7 +25,6 @@ import array
 import base64
 import binascii
 import dbus
-import httplib
 import ldap
 import os
 import pwd
@@ -43,6 +42,7 @@ import pipes
 
 from six.moves import urllib
 from six.moves.configparser import ConfigParser
+from six.moves.http_client import HTTPConnection
 
 from ipalib import api
 from ipalib import pkcs10, x509
@@ -1075,7 +1075,7 @@ class CAInstance(DogtagInstance):
         csr = pkcs10.strip_header(stdout)
 
         # Send the request to the CA
-        conn = httplib.HTTPConnection(
+        conn = HTTPConnection(
             self.fqdn, self.dogtag_constants.UNSECURE_PORT)
         params = urllib.parse.urlencode({'profileId': 'caServerCert',
                 'cert_request_type': 'pkcs10',

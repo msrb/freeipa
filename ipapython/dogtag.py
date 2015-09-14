@@ -19,11 +19,11 @@
 
 import collections
 import os
-import httplib
 import xml.dom.minidom
 
 import nss.nss as nss
 import six
+from six.moves.http_client import HTTPConnection, HTTPSConnection
 from six.moves import configparser
 from six.moves.urllib.parse import urlencode
 
@@ -182,7 +182,7 @@ def get_ca_certchain(ca_host=None, dogtag_constants=None):
     if dogtag_constants is None:
         dogtag_constants = configured_constants()
     chain = None
-    conn = httplib.HTTPConnection(
+    conn = HTTPConnection(
         ca_host,
         api.env.ca_install_port or dogtag_constants.UNSECURE_PORT)
     conn.request("GET", "/ca/ee/ca/getCertChain")
@@ -287,7 +287,7 @@ def http_request(host, port, url, **kw):
     """
     body = urlencode(kw)
     return _httplib_request(
-        'http', host, port, url, httplib.HTTPConnection, body)
+        'http', host, port, url, HTTPConnection, body)
 
 
 def unauthenticated_https_request(host, port, url, **kw):
@@ -301,7 +301,7 @@ def unauthenticated_https_request(host, port, url, **kw):
     """
     body = urlencode(kw)
     return _httplib_request(
-        'https', host, port, url, httplib.HTTPSConnection, body)
+        'https', host, port, url, HTTPSConnection, body)
 
 
 def _httplib_request(

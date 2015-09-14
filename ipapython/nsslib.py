@@ -21,7 +21,6 @@
 from __future__ import print_function
 
 import sys
-import httplib
 import getpass
 import socket
 from ipapython.ipa_log_manager import *
@@ -31,6 +30,8 @@ import nss.io as io
 import nss.nss as nss
 import nss.ssl as ssl
 import nss.error as error
+from six.moves.http_client import HTTPConnection, HTTPSConnection, HTTP
+
 from ipaplatform.paths import paths
 
 # NSS database currently open
@@ -172,8 +173,8 @@ class NSSAddressFamilyFallback(object):
             error_message="Could not connect to %s using any address" % host)
 
 
-class NSSConnection(httplib.HTTPConnection, NSSAddressFamilyFallback):
-    default_port = httplib.HTTPSConnection.default_port
+class NSSConnection(HTTPConnection, NSSAddressFamilyFallback):
+    default_port = HTTPSConnection.default_port
 
     def __init__(self, host, port=None, strict=None,
                  dbdir=None, family=socket.AF_UNSPEC, no_init=False,
@@ -189,7 +190,7 @@ class NSSConnection(httplib.HTTPConnection, NSSAddressFamilyFallback):
         :param tls_min_version: mininum version of SSL/TLS supported
         :param tls_max_version: maximum version of SSL/TLS supported.
         """
-        httplib.HTTPConnection.__init__(self, host, port, strict)
+        HTTPConnection.__init__(self, host, port, strict)
         NSSAddressFamilyFallback.__init__(self, family)
 
         root_logger.debug('%s init %s', self.__class__.__name__, host)
@@ -288,14 +289,15 @@ class NSSConnection(httplib.HTTPConnection, NSSAddressFamilyFallback):
             # to work across versions
             (major, minor, micro, releaselevel, serial) = sys.version_info
             if major == 2 and minor < 7:
-                httplib.HTTPConnection.endheaders(self)
+                HTTPConnection.endheaders(self)
             else:
-                httplib.HTTPConnection.endheaders(self, message)
+                HTTPConnection.endheaders(self, message)
         except NSPRError as e:
             self.close()
             raise e
 
-class NSSHTTPS(httplib.HTTP):
+
+class NSSHTTPS(HTTP):
     # We would like to use HTTP 1.1 not the older HTTP 1.0 but xmlrpc.client
     # and httplib do not play well together. httplib when the protocol
     # is 1.1 will add a host header in the request. But xmlrpc.client
@@ -325,7 +327,7 @@ class NSSHTTPS(httplib.HTTP):
         responses. This was causing nss_shutdown() to fail with a busy
         error.
         """
-        (status, reason, msg) = httplib.HTTP.getreply(self)
+        (status, reason, msg) = HTTP.getreply(self)
         if status != 200:
             self.file.close()
         return (status, reason, msg)

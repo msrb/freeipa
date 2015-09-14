@@ -20,9 +20,8 @@
 Base class for HTTP request tests
 """
 
-import httplib
-
 from six.moves import urllib
+from six.moves.http_client import HTTPSConnection
 
 from ipalib import api
 
@@ -48,6 +47,6 @@ class Unauthorized_HTTP_test(object):
         headers = {'Content-Type' : self.content_type,
                    'Referer' : url}
 
-        conn = httplib.HTTPSConnection(self.host)
+        conn = HTTPSConnection(self.host)
         conn.request(method, self.app_uri, params, headers)
         return conn.getresponse()
