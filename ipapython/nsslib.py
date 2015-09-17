@@ -30,7 +30,10 @@ import nss.io as io
 import nss.nss as nss
 import nss.ssl as ssl
 import nss.error as error
-from six.moves.http_client import HTTPConnection, HTTPSConnection, HTTP
+import six
+from six.moves.http_client import HTTPConnection, HTTPSConnection
+if six.PY2:
+    from six.moves.http_client import HTTP
 
 from ipaplatform.paths import paths
 
@@ -297,7 +300,8 @@ class NSSConnection(HTTPConnection, NSSAddressFamilyFallback):
             raise e
 
 
-class NSSHTTPS(HTTP):
+if six.PY2:
+  class NSSHTTPS(HTTP):
     # We would like to use HTTP 1.1 not the older HTTP 1.0 but xmlrpc.client
     # and httplib do not play well together. httplib when the protocol
     # is 1.1 will add a host header in the request. But xmlrpc.client
