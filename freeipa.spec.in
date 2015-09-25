@@ -65,6 +65,19 @@ BuildRequires:  automake
 BuildRequires:  m4
 BuildRequires:  libtool
 BuildRequires:  gettext
+BuildRequires:  sssd >= 1.13.1
+BuildRequires:  check
+BuildRequires:  libsss_idmap-devel
+BuildRequires:  libsss_nss_idmap-devel >= 1.12.2
+BuildRequires:  java-headless
+BuildRequires:  rhino
+BuildRequires:  libverto-devel
+BuildRequires:  systemd
+BuildRequires:  libunistring-devel
+BuildRequires:  softhsm-devel >= 2.0.0rc1-1
+BuildRequires:  openssl-devel
+BuildRequires:  p11-kit-devel
+BuildRequires:  pki-base >= 10.2.6
 BuildRequires:  python-devel
 BuildRequires:  python-ldap
 BuildRequires:  python-setuptools
@@ -78,29 +91,42 @@ BuildRequires:  pylint >= 1.0
 BuildRequires:  python-polib
 BuildRequires:  python-libipa_hbac
 BuildRequires:  python-memcached
-BuildRequires:  sssd >= 1.13.1
 BuildRequires:  python-lxml
 BuildRequires:  python-pyasn1 >= 0.0.9a
 BuildRequires:  python-qrcode-core >= 5.0.0
 BuildRequires:  python-dns >= 1.11.1
-BuildRequires:  check
-BuildRequires:  libsss_idmap-devel
-BuildRequires:  libsss_nss_idmap-devel >= 1.12.2
-BuildRequires:  java-headless
-BuildRequires:  rhino
-BuildRequires:  libverto-devel
-BuildRequires:  systemd
-BuildRequires:  libunistring-devel
 BuildRequires:  python-lesscpy
 BuildRequires:  python-yubico >= 1.2.3
-BuildRequires:  softhsm-devel >= 2.0.0rc1-1
-BuildRequires:  openssl-devel
-BuildRequires:  p11-kit-devel
-BuildRequires:  pki-base >= 10.2.6
 BuildRequires:  python-pytest-multihost >= 0.5
 BuildRequires:  python-pytest-sourceorder
 BuildRequires:  python-kdcproxy >= 0.3
 BuildRequires:  python-six
+
+# py3
+BuildRequires:  python3-devel
+BuildRequires:  python3-pyldap
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-nss
+BuildRequires:  python3-cryptography
+BuildRequires:  python3-netaddr
+BuildRequires:  python3-gssapi >= 1.1.2
+# not available (?)
+#BuildRequires:  python3-rhsm
+BuildRequires:  python3-pyOpenSSL
+BuildRequires:  python3-pylint >= 1.0
+BuildRequires:  python3-polib
+BuildRequires:  python3-libipa_hbac
+BuildRequires:  python3-memcached
+BuildRequires:  python3-lxml
+BuildRequires:  python3-pyasn1 >= 0.0.9a
+BuildRequires:  python3-qrcode-core >= 5.0.0
+BuildRequires:  python3-dns >= 1.11.1
+BuildRequires:  python3-lesscpy
+BuildRequires:  python3-yubico >= 1.2.3
+BuildRequires:  python3-pytest-multihost >= 0.5
+BuildRequires:  python3-pytest-sourceorder
+BuildRequires:  python3-kdcproxy >= 0.3
+BuildRequires:  python3-six
 
 %description
 IPA is an integrated solution to provide centrally managed Identity (machine,
@@ -302,6 +328,7 @@ IPA administrators.
 %package python
 Summary: Python libraries used by IPA
 Group: System Environment/Libraries
+Requires: freeipa-python-common = %{version}-%{release}
 Requires: python-gssapi >= 1.1.2
 Requires: gnupg
 Requires: iproute
@@ -332,11 +359,55 @@ user, virtual machines, groups, authentication credentials), Policy
 logs, analysis thereof). If you are using IPA you need to install this
 package.
 
+%package python3
+Summary: Python 3 libraries used by IPA
+Group: System Environment/Libraries
+Requires: freeipa-python-common = %{version}-%{release}
+Requires: python3-gssapi >= 1.1.2
+Requires: gnupg
+Requires: iproute
+Requires: keyutils
+Requires: python3-pyOpenSSL
+Requires: python3-nss >= 0.16
+Requires: python3-cryptography
+Requires: python3-lxml
+Requires: python3-netaddr
+Requires: python3-libipa_hbac
+Requires: python3-qrcode-core >= 5.0.0
+Requires: python3-pyasn1
+Requires: python3-dateutil
+Requires: python3-yubico >= 1.2.3
+Requires: python3-sss-murmur
+Requires: wget
+Requires: python3-dbus
+Requires: python3-setuptools
+Requires: python3-six
+
+%description python3
+IPA is an integrated solution to provide centrally managed Identity (machine,
+user, virtual machines, groups, authentication credentials), Policy
+(configuration settings, access control information) and Audit (events,
+logs, analysis thereof). If you are using IPA you need to install this
+package.
+
+%package python-common
+# TODO
+Summary: Python libraries used by IPA
+Group: System Environment/Libraries
+
+%description python-common
+IPA is an integrated solution to provide centrally managed Identity (machine,
+user, virtual machines, groups, authentication credentials), Policy
+(configuration settings, access control information) and Audit (events,
+logs, analysis thereof). If you are using IPA you need to install this
+package.
+
 %if ! %{ONLY_CLIENT}
 %package tests
 Summary: IPA tests and test tools
 Requires: %{name}-client = %{version}-%{release}
 Requires: %{name}-python = %{version}-%{release}
+Requires: %{name}-tests-python = %{version}-%{release}
 Requires: tar
 Requires: xz
 Requires: python-nose
@@ -351,6 +422,50 @@ Conflicts: %{alt_name}-tests
 Obsoletes: %{alt_name}-tests < %{version}
 
 %description tests
+IPA is an integrated solution to provide centrally managed Identity (machine,
+user, virtual machines, groups, authentication credentials), Policy
+(configuration settings, access control information) and Audit (events,
+logs, analysis thereof).
+This package contains tests that verify IPA functionality.
+
+%package tests-python
+# TODO: fix R
+Summary: IPA tests and test tools
+Requires: %{name}-client = %{version}-%{release}
+Requires: %{name}-python = %{version}-%{release}
+Requires: tar
+Requires: xz
+Requires: python-nose
+Requires: pytest >= 2.6
+Requires: python-paste
+Requires: python-coverage
+Requires: python-polib
+Requires: python-pytest-multihost >= 0.5
+Requires: python-pytest-sourceorder
+
+%description tests-python
+IPA is an integrated solution to provide centrally managed Identity (machine,
+user, virtual machines, groups, authentication credentials), Policy
+(configuration settings, access control information) and Audit (events,
+logs, analysis thereof).
+This package contains tests that verify IPA functionality.
+
+%package tests-python3
+# TODO: fix R
+Summary: IPA tests and test tools
+Requires: %{name}-client = %{version}-%{release}
+Requires: %{name}-python = %{version}-%{release}
+Requires: tar
+Requires: xz
+Requires: python-nose
+Requires: pytest >= 2.6
+Requires: python-paste
+Requires: python-coverage
+Requires: python-polib
+Requires: python-pytest-multihost >= 0.5
+Requires: python-pytest-sourceorder
+
+%description tests-python3
 IPA is an integrated solution to provide centrally managed Identity (machine,
 user, virtual machines, groups, authentication credentials), Policy
 (configuration settings, access control information) and Audit (events,
@@ -935,25 +1050,48 @@ fi
 
 %files python -f %{gettext_domain}.lang
 %defattr(-,root,root,-)
+%dir %{python2_sitelib}/ipapython
+%{python2_sitelib}/ipapython/*.py*
+%dir %{python2_sitelib}/ipapython/dnssec
+%{python2_sitelib}/ipapython/dnssec/*.py*
+%dir %{python2_sitelib}/ipapython/install
+%{python2_sitelib}/ipapython/install/*.py*
+%dir %{python2_sitelib}/ipalib
+%{python2_sitelib}/ipalib/*
+%dir %{python2_sitelib}/ipaplatform
+%{python2_sitelib}/ipaplatform/*
+%attr(0644,root,root) %{python2_sitearch}/default_encoding_utf8.so
+%attr(0644,root,root) %{python2_sitearch}/_ipap11helper.so
+%{python2_sitelib}/ipapython-*.egg-info
+%{python2_sitelib}/freeipa-*.egg-info
+%{python2_sitelib}/ipaplatform-*.egg-info
+%{python2_sitearch}/python_default_encoding-*.egg-info
+%{python2_sitearch}/_ipap11helper-*.egg-info
+
+%files python3 -f %{gettext_domain}.lang
+%defattr(-,root,root,-)
+%dir %{python3_sitelib}/ipapython
+%{python3_sitelib}/ipapython/*.py*
+%dir %{python3_sitelib}/ipapython/dnssec
+%{python3_sitelib}/ipapython/dnssec/*.py*
+%dir %{python3_sitelib}/ipapython/install
+%{python3_sitelib}/ipapython/install/*.py*
+%dir %{python3_sitelib}/ipalib
+%{python3_sitelib}/ipalib/*
+%dir %{python3_sitelib}/ipaplatform
+%{python3_sitelib}/ipaplatform/*
+%attr(0644,root,root) %{python3_sitearch}/default_encoding_utf8*.so
+%attr(0644,root,root) %{python3_sitearch}/_ipap11helper*.so
+%{python3_sitelib}/ipapython-*.egg-info
+%{python3_sitelib}/freeipa-*.egg-info
+%{python3_sitelib}/ipaplatform-*.egg-info
+%{python3_sitearch}/python_default_encoding-*.egg-info
+%{python3_sitearch}/_ipap11helper-*.egg-info
+
+%files python-common
+%defattr(-,root,root,-)
 %doc README Contributors.txt
 %license COPYING
-%dir %{python_sitelib}/ipapython
-%{python_sitelib}/ipapython/*.py*
-%dir %{python_sitelib}/ipapython/dnssec
-%{python_sitelib}/ipapython/dnssec/*.py*
-%dir %{python_sitelib}/ipapython/install
-%{python_sitelib}/ipapython/install/*.py*
-%dir %{python_sitelib}/ipalib
-%{python_sitelib}/ipalib/*
-%dir %{python_sitelib}/ipaplatform
-%{python_sitelib}/ipaplatform/*
-%attr(0644,root,root) %{python_sitearch}/default_encoding_utf8.so
-%attr(0644,root,root) %{python_sitearch}/_ipap11helper.so
-%{python_sitelib}/ipapython-*.egg-info
-%{python_sitelib}/freeipa-*.egg-info
-%{python_sitelib}/ipaplatform-*.egg-info
-%{python_sitearch}/python_default_encoding-*.egg-info
-%{python_sitearch}/_ipap11helper-*.egg-info
 %dir %attr(0755,root,root) %{_sysconfdir}/ipa/
 %ghost %attr(0644,root,apache) %config(noreplace) %{_sysconfdir}/ipa/default.conf
 %ghost %attr(0644,root,apache) %config(noreplace) %{_sysconfdir}/ipa/ca.crt
@@ -966,10 +1104,18 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/pki/ca-trust/source/ipa.p11-kit
 
 %if ! %{ONLY_CLIENT}
-%files tests -f tests-python.list
+%files tests
 %defattr(-,root,root,-)
 %doc README Contributors.txt
 %license COPYING
+%{_bindir}/ipa-run-tests
+%{_bindir}/ipa-test-config
+%{_bindir}/ipa-test-task
+%{_mandir}/man1/ipa-run-tests.1.gz
+%{_mandir}/man1/ipa-test-config.1.gz
+%{_mandir}/man1/ipa-test-task.1.gz
+
+%files tests-python -f tests-python.list
 %dir %{python_sitelib}/ipatests
 %dir %{python_sitelib}/ipatests/test_cmdline
 %dir %{python_sitelib}/ipatests/test_install
@@ -981,14 +1127,24 @@ fi
 %dir %{python_sitelib}/ipatests/test_pkcs10
 %dir %{python_sitelib}/ipatests/test_webui
 %dir %{python_sitelib}/ipatests/test_xmlrpc
-%{_bindir}/ipa-run-tests
-%{_bindir}/ipa-test-config
-%{_bindir}/ipa-test-task
 %{python_sitelib}/ipatests-*.egg-info
-%{_mandir}/man1/ipa-run-tests.1.gz
-%{_mandir}/man1/ipa-test-config.1.gz
-%{_mandir}/man1/ipa-test-task.1.gz
+
+%files tests-python3
+# TODO: -f tests-python.list
+%dir %{python3_sitelib}/ipatests
+%dir %{python3_sitelib}/ipatests/test_cmdline
+%dir %{python3_sitelib}/ipatests/test_install
+%dir %{python3_sitelib}/ipatests/test_ipalib
+%dir %{python3_sitelib}/ipatests/test_ipapython
+%dir %{python3_sitelib}/ipatests/test_ipaserver
+%dir %{python3_sitelib}/ipatests/test_ipaserver/test_install
+%dir %{python3_sitelib}/ipatests/test_ipaserver/data
+%dir %{python3_sitelib}/ipatests/test_pkcs10
+%dir %{python3_sitelib}/ipatests/test_webui
+%dir %{python3_sitelib}/ipatests/test_xmlrpc
+%{python3_sitelib}/ipatests-*.egg-info
 %endif # ONLY_CLIENT
+
 
 %changelog
 * Tue Nov 26 2013 Petr Viktorin<pviktori@redhat.com> - __VERSION__-__RELEASE__

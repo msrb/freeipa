@@ -54,6 +54,7 @@ LINT_OPTIONS=--no-fail
 endif
 
 PYTHON ?= $(shell rpm -E %__python || echo /usr/bin/python2)
+PYTHONS ?=  python2 python3
 
 CFLAGS := -g -O2 -Wall -Wextra -Wformat-security -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers $(CFLAGS)
 export CFLAGS
@@ -98,13 +99,15 @@ client-install: client client-dirs
 		(cd $$subdir && $(MAKE) install) || exit 1; \
 	done
 	cd install/po && $(MAKE) install || exit 1;
-	if [ "$(DESTDIR)" = "" ]; then \
-		$(PYTHON) setup-client.py install; \
-		(cd ipaplatform && $(PYTHON) setup.py install); \
-	else \
-		$(PYTHON) setup-client.py install --root $(DESTDIR); \
-		(cd ipaplatform && $(PYTHON) setup.py install --root $(DESTDIR)); \
-	fi
+	@for python in $(PYTHONS); do \
+		if [ "$(DESTDIR)" = "" ]; then \
+			$$python setup-client.py install; \
+			(cd ipaplatform && $$python setup.py install); \
+		else \
+			$$python setup-client.py install --root $(DESTDIR); \
+			(cd ipaplatform && $$python setup.py install --root $(DESTDIR)); \
+		fi \
+	done
 
 client-dirs:
 	@if [ "$(DESTDIR)" != "" ] ; then \
@@ -176,24 +179,28 @@ server: version-update
 	cd ipaplatform && $(PYTHON) setup.py build
 
 server-install: server
-	if [ "$(DESTDIR)" = "" ]; then \
-		$(PYTHON) setup.py install; \
-		(cd ipaplatform && $(PYTHON) setup.py install); \
-	else \
-		$(PYTHON) setup.py install --root $(DESTDIR); \
-		(cd ipaplatform && $(PYTHON) setup.py install --root $(DESTDIR)); \
-	fi
+	@for python in $(PYTHONS); do \
+		if [ "$(DESTDIR)" = "" ]; then \
+			$$python setup.py install; \
+			(cd ipaplatform && $$python setup.py install); \
+		else \
+			$$python setup.py install --root $(DESTDIR); \
+			(cd ipaplatform && $$python setup.py install --root $(DESTDIR)); \
+		fi \
+	done
 
 tests: version-update tests-man-autogen
 	cd ipatests; $(PYTHON) setup.py build
 	cd ipatests/man && $(MAKE) all
 
 tests-install: tests
-	if [ "$(DESTDIR)" = "" ]; then \
-		cd ipatests; $(PYTHON) setup.py install; \
-	else \
-		cd ipatests; $(PYTHON) setup.py install --root $(DESTDIR); \
-	fi
+	@for python in $(PYTHONS); do \
+		if [ "$(DESTDIR)" = "" ]; then \
+			cd ipatests; $$python setup.py install; \
+		else \
+			cd ipatests; $$python setup.py install --root $(DESTDIR); \
+		fi \
+	done
 	cd ipatests/man && $(MAKE) install
 
 archive:

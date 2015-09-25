@@ -2,6 +2,7 @@ PYTHONLIBDIR ?= $(shell  python2 -c "from distutils.sysconfig import *; print ge
 PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/ipa
 CONFIGDIR ?= $(DESTDIR)/etc/ipa
 TESTS = $(wildcard test/*.py)
+PYTHONS ?= python2 python3
 
 SUBDIRS = py_default_encoding ipap11helper
 
@@ -12,11 +13,13 @@ all:
 
 .PHONY: install
 install:
-	if [ "$(DESTDIR)" = "" ]; then \
-		python2 setup.py install; \
-	else \
-		python2 setup.py install --root $(DESTDIR); \
-	fi
+	@for python in $(PYTHONS); do \
+		if [ "$(DESTDIR)" = "" ]; then \
+			$$python setup.py install; \
+		else \
+			$$python setup.py install --root $(DESTDIR); \
+		fi \
+	done
 	@for subdir in $(SUBDIRS); do \
 		(cd $$subdir && $(MAKE) $@) || exit 1; \
 	done
